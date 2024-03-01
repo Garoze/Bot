@@ -16,7 +16,6 @@ export class EventHandler {
 		eventsFiles.forEach(async (file) => {
 			const { default: event } = await import(`file:///${eventsFolder}/${file}`);
 
-			console.log(event);
 			if (event.data.once) {
 				this.client.once(event.data.name, (...args) => event.execute(...args));
 			}
