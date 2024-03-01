@@ -8,7 +8,7 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
 	const pingEmbed = new EmbedBuilder()
 		.setColor(0xFF00FF)
 		.setTitle('Pong! 🏓')
-		.setDescription(`**Latency** is \`${Date.now() - interaction.createdTimestamp}\` ms. \n**API Latency** is \`${Math.round(interaction.client.ws.ping)}\` ms.`)
+		.setDescription(`**Latency** is \`${Date.now() - interaction.createdTimestamp}\` ms. \n**API Latency** is \`${Math.round(interaction.client.ws.ping)}\` ms`)
 		.setThumbnail(interaction.client.user.avatarURL()!)
 		.setTimestamp()
 		.setFooter({ text: `Command by: ${interaction.user.tag}`, iconURL: interaction.client.user.avatarURL()! });
