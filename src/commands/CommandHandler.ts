@@ -44,10 +44,17 @@ export class CommandHandler {
 				{ body: this.commandsToRegister },
 			);
 
+			// for global
+			// await rest.put(
+			//   Routes.applicationCommands(clientId),
+			//   { body: commands },
+			// );
+
 			console.log(`Successfully reloaded ${this.commandsToRegister.length} application (/) commands.`);
 		}
 		catch (error) {
 			console.error(error);
 		}
 	}
+
 }
