@@ -1,13 +1,19 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 const data = new SlashCommandBuilder()
 	.setName('ping')
 	.setDescription('Replies with Pong!');
 
 const execute = async (interaction: ChatInputCommandInteraction) => {
-	// interaction.user is the object representing the User who ran the command
-	// interaction.member is the GuildMember object, which represents the user in the specific guild
-	await interaction.reply('Pong! 🏓');
+	const pingEmbed = new EmbedBuilder()
+		.setColor(0xFF00FF)
+		.setTitle('Pong! 🏓')
+		.setDescription(`**Latency** is \`${Date.now() - interaction.createdTimestamp}\` ms. \n**API Latency** is \`${Math.round(interaction.client.ws.ping)}\` ms.`)
+		.setThumbnail(interaction.client.user.avatarURL()!)
+		.setTimestamp()
+		.setFooter({ text: `Command by: ${interaction.user.tag}`, iconURL: interaction.client.user.avatarURL()! });
+
+	await interaction.reply({ embeds: [pingEmbed], ephemeral: true });
 };
 
 export default { data, execute };

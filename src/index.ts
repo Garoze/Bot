@@ -1,5 +1,6 @@
 import 'dotenv/config';
-import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
+import { Client, Events, GatewayIntentBits } from 'discord.js';
+import { CommandHandler } from './commands/CommandHandler';
 
 const client = new Client({
 	intents: [
@@ -10,25 +11,7 @@ const client = new Client({
 	],
 });
 
-client.commands = new Collection();
-
-import * as path from 'path';
-import { readdirSync } from 'fs';
-
-const folderPath = path.resolve(path.dirname(''), 'src', 'commands', 'utility');
-const commandsFiles = readdirSync(folderPath).filter((file) => file.endsWith('.command.ts'));
-
-console.log(`Debug: \n FolderPath: ${folderPath} - CommandFiles: ${commandsFiles}`);
-
-// TODO: find a better way to deal with the whole file:/// windows thing.
-const { default: command } = await import(`file:///${folderPath}/${commandsFiles}`);
-if ('data' in command && 'execute' in command) {
-	console.log(`Comando existe: ${command.data.name}`);
-	client.commands.set(command.data.name, command);
-}
-else {
-	console.log(`[WARN] Bot - The command at ${commandsFiles} is missing a required "data" or "execute" property.`);
-}
+client.commands = new CommandHandler().loadCommands();
 
 client.once(Events.ClientReady, (readyClient) => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
