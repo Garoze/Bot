@@ -19,6 +19,7 @@
     ],
     "rules": {
       "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/no-explicit-any": "off",
       "arrow-spacing": ["warn", { "before": true, "after": true }],
       "brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
       "comma-dangle": ["error", "always-multiline"],
