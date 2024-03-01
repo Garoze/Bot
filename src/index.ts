@@ -18,32 +18,34 @@ import { readdirSync } from 'fs';
 const folderPath = path.resolve(path.dirname(''), 'src', 'commands', 'utility');
 const commandsFiles = readdirSync(folderPath).filter((file) => file.endsWith('.command.ts'));
 
-commandsFiles.forEach(async (file) => {
-	const { default: command } = await import(`./${file}`);
-	if ('data' in command && 'execute' in command) {
-		client.commands.set(command.data.name, command);
-	}
-	else {
-		console.log(`[WARN] Bot - The command at ${file} is missing a required "data" or "execute" property.`);
-	}
-});
+console.log(`Debug: \n FolderPath: ${folderPath} - CommandFiles: ${commandsFiles}`);
+
+// TODO: find a better way to deal with the whole file:/// windows thing.
+const { default: command } = await import(`file:///${folderPath}/${commandsFiles}`);
+if ('data' in command && 'execute' in command) {
+	console.log(`Comando existe: ${command.data.name}`);
+	client.commands.set(command.data.name, command);
+}
+else {
+	console.log(`[WARN] Bot - The command at ${commandsFiles} is missing a required "data" or "execute" property.`);
+}
 
 client.once(Events.ClientReady, (readyClient) => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
-client.on(Events.InteractionCreate, async (interaction) => {
+client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
-	const command = interaction.client.commands.get(interaction.commandName);
+	const cmd = interaction.client.commands.get(interaction.commandName);
 
-	if (!command) {
+	if (!cmd) {
 		console.error(`No command matching ${interaction.commandName} was found.`);
 		return;
 	}
 
 	try {
-		await command.execute(interaction);
+		await cmd.execute(interaction);
 	}
 	catch (error) {
 		console.error(error);
