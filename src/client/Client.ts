@@ -15,12 +15,12 @@ import {
 
 import { dirname, resolve } from 'path';
 import { CommandInterface } from 'src/@types/command';
-import { EventInterface, EventKey } from 'src/@types/event';
+import { EventInterface } from 'src/@types/event';
 
 export class BotClient extends Client {
   public static singleton?: BotClient;
 
-  public commandsFolders: string[] = ['common'];
+  public commandsFolders: string[] = ['common', 'admin'];
   public applicationCommandList: ApplicationCommandDataResolvable[] = [];
 
   public commandCollection: Collection<string, CommandInterface> =

@@ -11,7 +11,7 @@ import {
 
 interface CommandProps {
   interaction: CommandInteraction;
-  options?: CommandInteractionOptionResolver;
+  options: CommandInteractionOptionResolver;
 }
 
 type ComponentsButton = Collection<

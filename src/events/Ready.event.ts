@@ -8,7 +8,6 @@ export class ReadyEvent<Key extends Events> implements EventInterface<Key> {
     name: Events.ClientReady,
     once: true,
   };
-  // public eventKey: EventTypes<Events.ClientReady> = Events.ClientReady;
 
   execute(...[client]: EventTypes<'ready'>): any {
     console.log(`Ready! Logged in as ${client?.user.tag}`);
