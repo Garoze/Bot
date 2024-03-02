@@ -1,18 +1,29 @@
 {
-    "compilerOptions": {
-        "target": "ES2022",
-        "module": "ESNext",
-        "moduleResolution": "Node",
-        "strict": true,
-        "noImplicitAny": true,
-        "declaration": false,
-        "skipLibCheck": true,
-        "strictNullChecks": true,
-        "resolveJsonModule": true,
-        "outDir": "dist",
-        "typeRoots": ["src/@types", "node_modules/@types"],
-        "baseUrl": ".",
-    },
-    "include": ["src", "src/**/*.ts"],
-    "exclude": ["node_modules", "build"]
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ES2022",
+    "moduleResolution": "Node",
+    "strict": true,
+    "noImplicitAny": true,
+    "declaration": false,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "typeRoots": [
+      "src/@types",
+      "node_modules/@types"
+    ],
+    "baseUrl": ".",
+  },
+  "include": [
+    "src",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "build"
+  ]
 }
