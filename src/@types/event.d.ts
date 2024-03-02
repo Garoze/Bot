@@ -1,14 +1,17 @@
 import { ClientEvents, Events } from 'discord.js';
 
-export type EventKey = keyof ClientEvents;
+export type EventTypes<T extends `${Events}`> = T extends keyof ClientEvents
+  ? ClientEvents[T]
+  : never;
 
-interface EventProps<Key extends EventKey> {
-  name: Key;
+interface EventProps {
+  name: Events;
   once?: boolean;
+  async?: boolean;
 }
 
-export interface EventInterface<Key extends EventKey = Events.ClientReady> {
-  props: EventProps<Key>;
+export interface EventInterface<Key extends Events> {
+  props: EventProps;
 
-  execute(...args: ClientEvents[Key]): any;
+  execute(...[args]: EventTypes[Key]): any;
 }

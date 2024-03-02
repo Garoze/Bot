@@ -1,26 +1,16 @@
 import { Events } from 'discord.js';
+import { EventInterface, EventProps, EventTypes } from 'src/@types/event';
 import { EventDecorator } from './EventDecorator';
-import { EventInterface, EventProps } from 'src/@types/event';
-
-// const data = {
-//   name: Events.ClientReady,
-//   once: true,
-// };
-
-// const execute = (client: Client) => {
-//   console.log(`Ready! Logged in as ${client.user?.tag}`);
-// };
 
 @EventDecorator
-export class ReadyEvent implements EventInterface<> {
-  props = {
+export class ReadyEvent<Key extends Events> implements EventInterface<Key> {
+  props: EventProps = {
     name: Events.ClientReady,
-    o,
+    once: true,
   };
+  // public eventKey: EventTypes<Events.ClientReady> = Events.ClientReady;
 
-  execute(...args: any) {
-    throw new Error('Method not implemented.');
+  execute(...[client]: EventTypes<'ready'>): any {
+    console.log(`Ready! Logged in as ${client?.user.tag}`);
   }
 }
-
-// export default { data, execute };

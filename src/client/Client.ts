@@ -10,6 +10,7 @@ import {
   Routes,
   REST,
   Collection,
+  Events,
 } from 'discord.js';
 
 import { dirname, resolve } from 'path';
@@ -99,7 +100,7 @@ export class BotClient extends Client {
     await this.registerCommands();
   }
 
-  public registerEvent<Key extends EventKey>(event: EventInterface<Key>) {
+  public registerEvent<Key extends Events>(event: EventInterface<Key>) {
     if (event.props.once) {
       this.once(event.props.name, (...args) => event.execute(...args));
     } else {
