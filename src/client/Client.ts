@@ -14,12 +14,14 @@ import {
 
 import { dirname, resolve } from 'path';
 import { CommandInterface } from 'src/@types/command';
+import { EventInterface, EventKey } from 'src/@types/event';
 
 export class BotClient extends Client {
   public static singleton?: BotClient;
 
   public commandsFolders: string[] = ['common'];
   public applicationCommandList: ApplicationCommandDataResolvable[] = [];
+
   public commandCollection: Collection<string, CommandInterface> =
     new Collection();
 
@@ -97,6 +99,14 @@ export class BotClient extends Client {
     await this.registerCommands();
   }
 
+  public registerEvent<Key extends EventKey>(event: EventInterface<Key>) {
+    if (event.props.once) {
+      this.once(event.props.name, (...args) => event.execute(...args));
+    } else {
+      this.on(event.props.name, (...args) => event.execute(...args));
+    }
+  }
+
   async loadEvents() {
     const eventsFolder = resolve(dirname(''), 'src', 'events');
     const eventsFiles = readdirSync(eventsFolder).filter((file) =>
@@ -104,15 +114,7 @@ export class BotClient extends Client {
     );
 
     eventsFiles.forEach(async (file) => {
-      const { default: event } = await import(
-        `file:///${eventsFolder}/${file}`
-      );
-
-      if (event.data.once) {
-        this.once(event.data.name, (...args) => event.execute(...args));
-      } else {
-        this.on(event.data.name, (...args) => event.execute(...args));
-      }
+      await import(`file:///${eventsFolder}/${file}`);
     });
   }
 
