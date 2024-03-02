@@ -29,7 +29,9 @@ export class DeleteCommand implements CommandInterface {
   };
 
   async execute({ interaction }: CommandProps) {
-    interaction.deferReply({ ephemeral: true });
+    if (!interaction.isChatInputCommand()) return;
+
+    await interaction.deferReply({ ephemeral: true });
     const commandID = interaction.options.get('command-id', true).value;
 
     if (
