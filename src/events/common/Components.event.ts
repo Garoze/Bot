@@ -1,5 +1,5 @@
 import { EventInterface, EventProps, EventTypes } from 'src/@types/event';
-import { EventDecorator } from './EventDecorator';
+import { EventDecorator } from '../EventDecorator';
 import { Events } from 'discord.js';
 import { BotClient } from 'src/client/Client';
 

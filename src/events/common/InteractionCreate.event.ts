@@ -1,5 +1,5 @@
 import { CommandInteractionOptionResolver, Events } from 'discord.js';
-import { EventDecorator } from './EventDecorator';
+import { EventDecorator } from '../EventDecorator';
 import { EventInterface, EventProps, EventTypes } from 'src/@types/event';
 
 @EventDecorator

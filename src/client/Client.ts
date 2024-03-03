@@ -123,7 +123,7 @@ export class BotClient extends Client {
   }
 
   async loadEvents() {
-    const eventsFolder = resolve(dirname(''), 'src', 'events');
+    const eventsFolder = resolve(dirname(''), 'src', 'events', 'common');
     const eventsFiles = readdirSync(eventsFolder).filter((file) =>
       file.endsWith('.event.ts'),
     );

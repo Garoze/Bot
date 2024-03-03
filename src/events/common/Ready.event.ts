@@ -1,6 +1,6 @@
 import { Events } from 'discord.js';
 import { EventInterface, EventProps, EventTypes } from 'src/@types/event';
-import { EventDecorator } from './EventDecorator';
+import { EventDecorator } from '../EventDecorator';
 
 @EventDecorator
 export class ReadyEvent<Key extends Events> implements EventInterface<Key> {
