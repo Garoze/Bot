@@ -3,15 +3,16 @@ import {
   CommandProps,
   CommandType,
 } from 'src/@types/command';
-import { CommandDecorator } from '../CommandDecorator';
+
 import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
-  Collection,
+  ComponentType,
   EmbedBuilder,
   StringSelectMenuBuilder,
 } from 'discord.js';
-import { BotClient } from 'src/client/Client';
+
+import { CommandDecorator } from '../CommandDecorator';
 
 @CommandDecorator
 export class RelatorioCommand implements CommandInterface {
@@ -26,23 +27,6 @@ export class RelatorioCommand implements CommandInterface {
         required: true,
       },
     ],
-    selects: new Collection([
-      [
-        'map-select',
-        async (interaction) => {
-          const map = interaction.values[0];
-
-          BotClient.getSingleton().selectedMap = map;
-
-          interaction
-            .reply({
-              content: `Mapa selecionado: ${map}`,
-              ephemeral: true,
-            })
-            .then(() => setTimeout(() => interaction.deleteReply(), 3000));
-        },
-      ],
-    ]),
   };
 
   async execute({ interaction }: CommandProps) {
@@ -148,19 +132,34 @@ export class RelatorioCommand implements CommandInterface {
       .setImage(reportImage?.attachment?.url as string)
       .setTimestamp();
 
-    await interaction
-      .reply({
-        components: [mapSelectMenu],
-        ephemeral: true,
-        fetchReply: true,
-      })
-      .then(() => {
-        setTimeout(async () => {
-          interaction.deleteReply();
-          await interaction.followUp({
-            embeds: [embed],
-          });
-        }, 3000);
+    const mapSelectMessage = await interaction.reply({
+      components: [mapSelectMenu],
+      ephemeral: true,
+      fetchReply: true,
+    });
+
+    const mapSelectCollector = mapSelectMessage.createMessageComponentCollector(
+      {
+        componentType: ComponentType.StringSelect,
+        time: 10000,
+      },
+    );
+
+    mapSelectCollector.on('collect', (collectorInteraction) => {
+      const map = collectorInteraction.values[0];
+
+      embed.setTitle(map);
+
+      collectorInteraction.update({
+        content: `Mapa selecionado :${map}`,
+        components: [],
       });
+
+      interaction.followUp({
+        embeds: [embed],
+      });
+
+      mapSelectCollector.stop();
+    });
   }
 }
