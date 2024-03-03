@@ -29,22 +29,15 @@ type ComponentsModal = Collection<
   (interaction: ModalSubmitInteraction) => any
 >;
 
-interface CommandComponents {
+type CommandType = ApplicationCommandData & {
   buttons?: ComponentsButton;
   selects?: ComponentsSelect;
   modals?: ComponentsModal;
-}
-
-type CommandType = CommandComponents &
-  ApplicationCommandData & {
-    buttons?: ComponentsButton;
-    selects?: ComponentsSelect;
-    modals?: ComponentsModal;
-  };
+};
 
 interface CommandInterface {
   props: CommandType;
 
-  execute(props: CommandProps): any;
+  execute: (props: CommandProps) => any;
   autoComplete?: (interaction: AutocompleteInteraction) => any;
 }

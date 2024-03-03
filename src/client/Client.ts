@@ -11,6 +11,7 @@ import {
   REST,
   Collection,
   Events,
+  StringSelectMenuInteraction,
 } from 'discord.js';
 
 import { dirname, resolve } from 'path';
@@ -25,6 +26,13 @@ export class BotClient extends Client {
 
   public commandCollection: Collection<string, CommandInterface> =
     new Collection();
+
+  // public buttonsCollection = new Collection();
+  public selectsCollection = new Collection<
+    string,
+    (interaction: StringSelectMenuInteraction) => any
+  >();
+  // public modalsCollection = new Collection();
 
   constructor(options?: Partial<ClientOptions>) {
     super({
@@ -55,6 +63,12 @@ export class BotClient extends Client {
   public addCommand(command: CommandInterface) {
     this.commandCollection.set(command.props.name, command);
     this.applicationCommandList.push(command.props);
+
+    if (command.props.selects) {
+      command.props.selects.map((execute, key) =>
+        this.selectsCollection.set(key, execute),
+      );
+    }
   }
 
   public async registerCommands() {
