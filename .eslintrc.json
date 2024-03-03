@@ -39,13 +39,6 @@
         "after": true
       }
     ],
-    // "brace-style": [
-    //   "error",
-    //   "stroustrup",
-    //   {
-    //     "allowSingleLine": true
-    //   }
-    // ],
     "brace-style": "off",
     "comma-dangle": [
       "error",
@@ -112,21 +105,17 @@
     "prefer-const": "error",
     "quotes": [
       "error",
-      "single"
+      "single",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": true
+      }
     ],
     "semi": [
       "error",
       "always"
     ],
     "space-before-blocks": "error",
-    // "space-before-function-paren": [
-    //   "error",
-    //   {
-    //     "anonymous": "always",
-    //     "named": "never",
-    //     "asyncArrow": "always"
-    //   }
-    // ],
     "space-before-function-paren": "off",
     "space-in-parens": "error",
     "space-infix-ops": "error",
