@@ -300,11 +300,3 @@ export class RelatorioCommand implements CommandInterface {
     await interaction.showModal(modal);
   }
 }
-
-// Fluxo do comando de relatorio
-// digita /relatorio com uma imagem X
-// seleciona o mapa da missão X
-// seleciona o comando
-// selecionar os operadores
-// abre o modal para preencher as observações
-// envia
