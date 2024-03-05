@@ -17,5 +17,11 @@ export class ComponentsEvent<Key extends Events>
         interaction,
       );
     }
+
+    if (interaction.isModalSubmit()) {
+      BotClient.getSingleton().modalsCollection.get(interaction.customId)?.(
+        interaction,
+      );
+    }
   }
 }
