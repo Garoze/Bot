@@ -225,7 +225,7 @@ export class RelatorioCommand implements CommandInterface {
           }
 
           collectorInteraction.update({
-            content: `Comando informação com sucesso!`,
+            content: `Comando informado com sucesso!`,
             components: [operatorsSelectMenu],
           });
           break;
@@ -245,10 +245,6 @@ export class RelatorioCommand implements CommandInterface {
               }
             });
 
-            collectorInteraction.update({
-              content: `Operadores informados com sucesso!`,
-            });
-
             const modal = new ModalBuilder({
               custom_id: 'report-modal',
               title: `Relatório ${info.map} - ${new Date().toLocaleDateString('pt-BR')}`,
@@ -261,6 +257,7 @@ export class RelatorioCommand implements CommandInterface {
                       placeholder: 'Informe o modo da operação: ',
                       style: TextInputStyle.Short,
                       value: info.mode,
+                      required: true,
                     }),
                   ],
                 }),
@@ -272,6 +269,7 @@ export class RelatorioCommand implements CommandInterface {
                       placeholder: 'Informe o comando da operação: ',
                       style: TextInputStyle.Short,
                       value: info.command,
+                      required: true,
                     }),
                   ],
                 }),
@@ -283,6 +281,7 @@ export class RelatorioCommand implements CommandInterface {
                       placeholder: 'Informe os operadores: ',
                       style: TextInputStyle.Paragraph,
                       value: info.operators,
+                      required: true,
                     }),
                   ],
                 }),
@@ -293,6 +292,7 @@ export class RelatorioCommand implements CommandInterface {
                       label: 'Observações: ',
                       style: TextInputStyle.Paragraph,
                       value: info.comments,
+                      required: false,
                     }),
                   ],
                 }),
