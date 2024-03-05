@@ -7,18 +7,28 @@ import {
 import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
-  ComponentType,
-  EmbedBuilder,
+  ModalBuilder,
   StringSelectMenuBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  UserSelectMenuBuilder,
 } from 'discord.js';
 
 import { CommandDecorator } from '../CommandDecorator';
+
+type ReportInfo = {
+  map: string;
+  mode: string;
+  command: string;
+  operators: string[];
+  comments: string;
+};
 
 @CommandDecorator
 export class RelatorioCommand implements CommandInterface {
   props: CommandType = {
     name: 'relatorio',
-    description: 'Envia o relátorio da missão ao comando da EliteBR',
+    description: 'Envia o relátorio da missão ao comando da Elite BR',
     options: [
       {
         name: 'report-image',
@@ -29,7 +39,17 @@ export class RelatorioCommand implements CommandInterface {
     ],
   };
 
-  async execute({ interaction }: CommandProps) {
+  async execute({ interaction, options }: CommandProps) {
+    const info: ReportInfo = {
+      map: '',
+      mode: '',
+      command: '',
+      operators: [''],
+      comments: 'N/A',
+    };
+
+    const _reportImage = options.get('report-image');
+
     const mapSelectMenu = new ActionRowBuilder<StringSelectMenuBuilder>({
       components: [
         new StringSelectMenuBuilder({
@@ -115,24 +135,10 @@ export class RelatorioCommand implements CommandInterface {
       ],
     });
 
-    const reportImage = interaction.options.get('report-image');
-
-    const embed = new EmbedBuilder()
-      .setColor(0xff00ff)
-      .setTitle(interaction.client.selectedMap || 'Missão')
-      .setDescription(
-        `Data: ${new Date().toLocaleDateString('pt-BR')}\nAo comando do EliteBR, envio de relatório referente a missão.`,
-      )
-      .addFields(
-        { name: 'Comando', value: 'Nome do Comando' },
-        { name: '\u200B', value: '\u200B' },
-        { name: 'Operadores', value: '.' },
-        { name: '.', value: 'Nome dos Operadores', inline: true },
-      )
-      .setImage(reportImage?.attachment?.url as string)
-      .setTimestamp();
+    // interaction.deferReply({ fetchReply: true, ephemeral: true });
 
     const mapSelectMessage = await interaction.reply({
+      content: 'Informe o mapa da operação: ',
       components: [mapSelectMenu],
       ephemeral: true,
       fetchReply: true,
@@ -140,26 +146,165 @@ export class RelatorioCommand implements CommandInterface {
 
     const mapSelectCollector = mapSelectMessage.createMessageComponentCollector(
       {
-        componentType: ComponentType.StringSelect,
         time: 10000,
       },
     );
 
-    mapSelectCollector.on('collect', (collectorInteraction) => {
-      const map = collectorInteraction.values[0];
-
-      embed.setTitle(map);
-
-      collectorInteraction.update({
-        content: `Mapa selecionado :${map}`,
-        components: [],
-      });
-
-      interaction.followUp({
-        embeds: [embed],
-      });
-
-      mapSelectCollector.stop();
+    const modeSelectMenu = new ActionRowBuilder<StringSelectMenuBuilder>({
+      components: [
+        new StringSelectMenuBuilder({
+          custom_id: 'mode-select',
+          placeholder: 'Informe o modo da operação: ',
+          min_values: 1,
+          max_values: 1,
+          options: [
+            {
+              label: 'Rádio',
+              value: 'radio',
+            },
+            {
+              label: 'Arcade',
+              value: 'arcade',
+            },
+          ],
+        }),
+      ],
     });
+
+    const commandSelectMenu = new ActionRowBuilder<UserSelectMenuBuilder>({
+      components: [
+        new UserSelectMenuBuilder({
+          custom_id: 'command-select',
+          placeholder: 'Informe o comando da operação: ',
+          min_values: 1,
+          maxValues: 1,
+        }),
+      ],
+    });
+
+    const operatorsSelectMenu = new ActionRowBuilder<UserSelectMenuBuilder>({
+      components: [
+        new UserSelectMenuBuilder({
+          custom_id: 'operators-select',
+          placeholder: 'Informe os operadores presentes: ',
+          min_values: 1,
+          max_values: 12,
+        }),
+      ],
+    });
+
+    const modal = new ModalBuilder({
+      custom_id: 'report-modal',
+      title: `Relatório ${info.map} - ${new Date().toLocaleDateString('pt-BR')}`,
+    });
+
+    const modeInput = new ActionRowBuilder<TextInputBuilder>({
+      components: [
+        new TextInputBuilder({
+          custom_id: 'modal-mode-input',
+          label: 'Modo da operação: ',
+          placeholder: 'Informe o modo da operação: ',
+          style: TextInputStyle.Short,
+          value: info.mode,
+        }),
+      ],
+    });
+
+    const commandInput = new ActionRowBuilder<TextInputBuilder>({
+      components: [
+        new TextInputBuilder({
+          custom_id: 'modal-command-input',
+          label: 'Comando da operação: ',
+          placeholder: 'Informe o comando da operação: ',
+          style: TextInputStyle.Short,
+          value: info.command,
+        }),
+      ],
+    });
+
+    const operatorsInput = new ActionRowBuilder<TextInputBuilder>({
+      components: [
+        new TextInputBuilder({
+          custom_id: 'modal-operators-input',
+          label: 'Operadores: ',
+          placeholder: 'Informe os operadores: ',
+          style: TextInputStyle.Paragraph,
+          value: info.operators
+            .map((operator) => `${options.getUser(operator)}`)
+            .join('\n'),
+        }),
+      ],
+    });
+
+    const commentsInput = new ActionRowBuilder<TextInputBuilder>({
+      components: [
+        new TextInputBuilder({
+          custom_id: 'modal-comments-input',
+          label: 'Observações: ',
+          style: TextInputStyle.Paragraph,
+          value: info.comments,
+        }),
+      ],
+    });
+
+    modal.setComponents(modeInput, commandInput, operatorsInput, commentsInput);
+
+    mapSelectCollector.on('collect', async (collectorInteraction) => {
+      if (!collectorInteraction.isAnySelectMenu()) return;
+
+      switch (collectorInteraction.customId) {
+        case 'map-select':
+          info.map = collectorInteraction.values[0];
+
+          collectorInteraction.update({
+            content: `Mapa selecionado com sucesso!`,
+            components: [modeSelectMenu],
+          });
+          break;
+
+        case 'mode-select':
+          info.mode = collectorInteraction.values[0];
+
+          collectorInteraction.update({
+            content: `Modo selecionado com sucesso!`,
+            components: [commandSelectMenu],
+          });
+          break;
+
+        case 'command-select':
+          info.command = collectorInteraction.values[0];
+
+          collectorInteraction.update({
+            content: `Comando informação com sucesso!`,
+            components: [operatorsSelectMenu],
+          });
+          break;
+
+        case 'operators-select':
+          info.operators = collectorInteraction.values;
+
+          console.log(info);
+
+          collectorInteraction.update({
+            content: `Operadores informados com sucesso!`,
+          });
+
+          collectorInteraction.deleteReply();
+
+          mapSelectCollector.stop();
+          break;
+      }
+    });
+
+    // TODO: Find a way to show the modal
+    await interaction.showModal(modal);
   }
 }
+
+// Fluxo do comando de relatorio
+// digita /relatorio com uma imagem X
+// seleciona o mapa da missão X
+// seleciona o comando
+// selecionar os operadores
+// abre o modal para preencher as observações
+// envia
