@@ -20,7 +20,7 @@ type ReportInfo = {
   map: string;
   mode: string;
   command: string;
-  operators: string[];
+  operators: string;
   comments: string;
 };
 
@@ -44,7 +44,7 @@ export class RelatorioCommand implements CommandInterface {
       map: '',
       mode: '',
       command: '',
-      operators: [''],
+      operators: '',
       comments: 'N/A',
     };
 
@@ -135,8 +135,6 @@ export class RelatorioCommand implements CommandInterface {
       ],
     });
 
-    // interaction.deferReply({ fetchReply: true, ephemeral: true });
-
     const mapSelectMessage = await interaction.reply({
       content: 'Informe o mapa da operação: ',
       components: [mapSelectMenu],
@@ -146,7 +144,7 @@ export class RelatorioCommand implements CommandInterface {
 
     const mapSelectCollector = mapSelectMessage.createMessageComponentCollector(
       {
-        time: 10000,
+        time: 30000,
       },
     );
 
@@ -193,62 +191,6 @@ export class RelatorioCommand implements CommandInterface {
       ],
     });
 
-    const modal = new ModalBuilder({
-      custom_id: 'report-modal',
-      title: `Relatório ${info.map} - ${new Date().toLocaleDateString('pt-BR')}`,
-    });
-
-    const modeInput = new ActionRowBuilder<TextInputBuilder>({
-      components: [
-        new TextInputBuilder({
-          custom_id: 'modal-mode-input',
-          label: 'Modo da operação: ',
-          placeholder: 'Informe o modo da operação: ',
-          style: TextInputStyle.Short,
-          value: info.mode,
-        }),
-      ],
-    });
-
-    const commandInput = new ActionRowBuilder<TextInputBuilder>({
-      components: [
-        new TextInputBuilder({
-          custom_id: 'modal-command-input',
-          label: 'Comando da operação: ',
-          placeholder: 'Informe o comando da operação: ',
-          style: TextInputStyle.Short,
-          value: info.command,
-        }),
-      ],
-    });
-
-    const operatorsInput = new ActionRowBuilder<TextInputBuilder>({
-      components: [
-        new TextInputBuilder({
-          custom_id: 'modal-operators-input',
-          label: 'Operadores: ',
-          placeholder: 'Informe os operadores: ',
-          style: TextInputStyle.Paragraph,
-          value: info.operators
-            .map((operator) => `${options.getUser(operator)}`)
-            .join('\n'),
-        }),
-      ],
-    });
-
-    const commentsInput = new ActionRowBuilder<TextInputBuilder>({
-      components: [
-        new TextInputBuilder({
-          custom_id: 'modal-comments-input',
-          label: 'Observações: ',
-          style: TextInputStyle.Paragraph,
-          value: info.comments,
-        }),
-      ],
-    });
-
-    modal.setComponents(modeInput, commandInput, operatorsInput, commentsInput);
-
     mapSelectCollector.on('collect', async (collectorInteraction) => {
       if (!collectorInteraction.isAnySelectMenu()) return;
 
@@ -272,7 +214,15 @@ export class RelatorioCommand implements CommandInterface {
           break;
 
         case 'command-select':
-          info.command = collectorInteraction.values[0];
+          if (interaction.guild) {
+            info.command = (
+              await interaction.guild.members.fetch(
+                collectorInteraction.values[0],
+              )
+            ).user.displayName;
+          } else {
+            info.command = 'N/A';
+          }
 
           collectorInteraction.update({
             content: `Comando informação com sucesso!`,
@@ -281,22 +231,80 @@ export class RelatorioCommand implements CommandInterface {
           break;
 
         case 'operators-select':
-          info.operators = collectorInteraction.values;
+          {
+            const operators: string[] = [];
 
-          console.log(info);
+            collectorInteraction.values.forEach(async (operator) => {
+              if (interaction.guild) {
+                operators.push(
+                  (await interaction.guild.members.fetch(operator)).user
+                    .displayName,
+                );
+              } else {
+                operators.push('N/A');
+              }
+            });
 
-          collectorInteraction.update({
-            content: `Operadores informados com sucesso!`,
-          });
+            collectorInteraction.update({
+              content: `Operadores informados com sucesso!`,
+            });
 
-          collectorInteraction.deleteReply();
+            const modal = new ModalBuilder({
+              custom_id: 'report-modal',
+              title: `Relatório ${info.map} - ${new Date().toLocaleDateString('pt-BR')}`,
+              components: [
+                new ActionRowBuilder<TextInputBuilder>({
+                  components: [
+                    new TextInputBuilder({
+                      custom_id: 'modal-mode-input',
+                      label: 'Modo da operação: ',
+                      placeholder: 'Informe o modo da operação: ',
+                      style: TextInputStyle.Short,
+                      value: info.mode,
+                    }),
+                  ],
+                }),
+                new ActionRowBuilder<TextInputBuilder>({
+                  components: [
+                    new TextInputBuilder({
+                      custom_id: 'modal-command-input',
+                      label: 'Comando da operação: ',
+                      placeholder: 'Informe o comando da operação: ',
+                      style: TextInputStyle.Short,
+                      value: info.command,
+                    }),
+                  ],
+                }),
+                new ActionRowBuilder<TextInputBuilder>({
+                  components: [
+                    new TextInputBuilder({
+                      custom_id: 'modal-operators-input',
+                      label: 'Operadores: ',
+                      placeholder: 'Informe os operadores: ',
+                      style: TextInputStyle.Paragraph,
+                      value: info.operators,
+                    }),
+                  ],
+                }),
+                new ActionRowBuilder<TextInputBuilder>({
+                  components: [
+                    new TextInputBuilder({
+                      custom_id: 'modal-comments-input',
+                      label: 'Observações: ',
+                      style: TextInputStyle.Paragraph,
+                      value: info.comments,
+                    }),
+                  ],
+                }),
+              ],
+            });
 
-          mapSelectCollector.stop();
+            await collectorInteraction.showModal(modal);
+
+            mapSelectCollector.stop();
+          }
           break;
       }
     });
-
-    // TODO: Find a way to show the modal
-    await interaction.showModal(modal);
   }
 }
