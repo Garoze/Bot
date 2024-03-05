@@ -12,6 +12,7 @@ import {
   Collection,
   Events,
   StringSelectMenuInteraction,
+  ModalSubmitInteraction,
 } from 'discord.js';
 
 import { dirname, resolve } from 'path';
@@ -33,6 +34,11 @@ export class BotClient extends Client {
     (interaction: StringSelectMenuInteraction) => any
   >();
   // public modalsCollection = new Collection();
+
+  public modalsCollection = new Collection<
+    string,
+    (interaction: ModalSubmitInteraction) => any
+  >();
 
   constructor(options?: Partial<ClientOptions>) {
     super({
@@ -65,8 +71,14 @@ export class BotClient extends Client {
     this.applicationCommandList.push(command.props);
 
     if (command.props.selects) {
-      command.props.selects.map((execute, key) =>
-        this.selectsCollection.set(key, execute),
+      command.props.selects.map((execute, customID) =>
+        this.selectsCollection.set(customID, execute),
+      );
+    }
+
+    if (command.props.modals) {
+      command.props.modals.map((execute, customID) =>
+        this.modalsCollection.set(customID, execute),
       );
     }
   }
