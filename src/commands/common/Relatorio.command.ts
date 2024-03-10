@@ -205,7 +205,7 @@ export class RelatorioCommand implements CommandInterface {
         case 'map-select':
           info.map = collectorInteraction.values[0];
 
-          collectorInteraction.update({
+          await collectorInteraction.update({
             content: `Mapa selecionado com sucesso!`,
             components: [modeSelectMenu],
           });
@@ -214,7 +214,7 @@ export class RelatorioCommand implements CommandInterface {
         case 'mode-select':
           info.mode = collectorInteraction.values[0];
 
-          collectorInteraction.update({
+          await collectorInteraction.update({
             content: `Modo selecionado com sucesso!`,
             components: [commandSelectMenu],
           });
@@ -228,11 +228,11 @@ export class RelatorioCommand implements CommandInterface {
 
             if (command) info.command = command.displayName;
 
-            collectorInteraction.update({
+            await collectorInteraction.update({
               components: [],
             });
 
-            collectorInteraction.editReply({
+            await collectorInteraction.editReply({
               content: `Comando informado com sucesso!`,
               components: [operatorsSelectMenu],
             });
@@ -241,7 +241,7 @@ export class RelatorioCommand implements CommandInterface {
 
         case 'operators-select':
           {
-            collectorInteraction.values.forEach((id) => {
+            await collectorInteraction.values.forEach((id) => {
               const operator = guild?.members.cache.find(
                 (member) => member.id === id,
               );
