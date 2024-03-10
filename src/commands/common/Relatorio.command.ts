@@ -241,7 +241,7 @@ export class RelatorioCommand implements CommandInterface {
 
         case 'operators-select':
           {
-            await collectorInteraction.values.forEach((id) => {
+            collectorInteraction.values.forEach((id) => {
               const operator = guild?.members.cache.find(
                 (member) => member.id === id,
               );
