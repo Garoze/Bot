@@ -11,7 +11,7 @@ export class InteractionCreateEvent<Key extends Events>
   };
 
   async execute(
-    ...[interaction]: EventTypes<'interactionCreate'>
+    ...[interaction]: EventTypes<Events.InteractionCreate>
   ): Promise<any> {
     if (!interaction.isChatInputCommand()) return;
 

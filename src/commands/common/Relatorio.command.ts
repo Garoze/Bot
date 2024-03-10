@@ -16,11 +16,16 @@ import {
 
 import { CommandDecorator } from '../CommandDecorator';
 
+type Operator = {
+  id: string;
+  displayName: string;
+};
+
 type ReportInfo = {
   map: string;
   mode: string;
   command: string;
-  operators: string;
+  operators: Operator[];
   comments: string;
 };
 
@@ -44,7 +49,7 @@ export class RelatorioCommand implements CommandInterface {
       map: '',
       mode: '',
       command: '',
-      operators: '',
+      operators: [],
       comments: 'N/A',
     };
 
@@ -194,6 +199,8 @@ export class RelatorioCommand implements CommandInterface {
     mapSelectCollector.on('collect', async (collectorInteraction) => {
       if (!collectorInteraction.isAnySelectMenu()) return;
 
+      const { guild } = collectorInteraction;
+
       switch (collectorInteraction.customId) {
         case 'map-select':
           info.map = collectorInteraction.values[0];
@@ -214,34 +221,33 @@ export class RelatorioCommand implements CommandInterface {
           break;
 
         case 'command-select':
-          if (interaction.guild) {
-            info.command = (
-              await interaction.guild.members.fetch(
-                collectorInteraction.values[0],
-              )
-            ).user.displayName;
-          } else {
-            info.command = 'N/A';
-          }
+          {
+            const command = guild?.members.cache.find(
+              (member) => member.id === collectorInteraction.values[0],
+            );
 
-          collectorInteraction.update({
-            content: `Comando informado com sucesso!`,
-            components: [operatorsSelectMenu],
-          });
+            if (command) info.command = command.displayName;
+
+            collectorInteraction.update({
+              components: [],
+            });
+
+            collectorInteraction.editReply({
+              content: `Comando informado com sucesso!`,
+              components: [operatorsSelectMenu],
+            });
+          }
           break;
 
         case 'operators-select':
           {
-            const operators: string[] = [];
+            collectorInteraction.values.forEach((id) => {
+              const operator = guild?.members.cache.find(
+                (member) => member.id === id,
+              );
 
-            collectorInteraction.values.forEach(async (operator) => {
-              if (interaction.guild) {
-                operators.push(
-                  (await interaction.guild.members.fetch(operator)).user
-                    .displayName,
-                );
-              } else {
-                operators.push('N/A');
+              if (operator) {
+                info.operators.push({ id, displayName: operator.displayName });
               }
             });
 
@@ -280,7 +286,9 @@ export class RelatorioCommand implements CommandInterface {
                       label: 'Operadores: ',
                       placeholder: 'Informe os operadores: ',
                       style: TextInputStyle.Paragraph,
-                      value: info.operators,
+                      value: info.operators
+                        .map((operator) => operator.displayName)
+                        .join('\n'),
                       required: true,
                     }),
                   ],
