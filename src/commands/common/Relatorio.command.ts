@@ -15,13 +15,14 @@ import {
 } from 'discord.js';
 
 import { CommandDecorator } from '../CommandDecorator';
+import { getMapName, maps } from 'src/utils/mapsUtils';
 
 type Operator = {
   id: string;
   displayName: string;
 };
 
-type ReportInfo = {
+type Report = {
   map: string;
   mode: string;
   command: string;
@@ -45,7 +46,7 @@ export class RelatorioCommand implements CommandInterface {
   };
 
   async execute({ interaction, options }: CommandProps) {
-    const info: ReportInfo = {
+    const info: Report = {
       map: '',
       mode: '',
       command: '',
@@ -62,86 +63,13 @@ export class RelatorioCommand implements CommandInterface {
           placeholder: 'Selecione o mapa da missão.',
           min_values: 1,
           max_values: 1,
-          options: [
-            {
-              label: 'Thank You, Come Again - 4U Gas Station',
-              value: 'gas-station',
-            },
-            {
-              label: '23 Megabytes A Second - San Uriel Condominiums',
-              value: 'streamer',
-            },
-            {
-              label: ' Twisted Nerve - 213 Park Homes',
-              value: 'meth-house',
-            },
-            {
-              label: 'The Spider - Brixley Talent Time',
-              value: 'talent-agency',
-            },
-            {
-              label: `A Lethal Obsession - Sullivan's Slope`,
-              value: 'aluminum-hat',
-            },
-            {
-              label: 'Ides of March - Brisa Cove',
-              value: 'veterans',
-            },
-            {
-              label: 'Sinuous Trail - Mindjot Data Center',
-              value: 'midjot',
-            },
-            {
-              label: 'Ends of the Earth - Kawayu Beach',
-              value: 'beach-house',
-            },
-            {
-              label: 'Greased Palms - Los Sueños Postal Service',
-              value: 'postal',
-            },
-            {
-              label: 'Valley of the Dolls - Voll Health House',
-              value: 'voll-house',
-            },
-            {
-              label: 'Elephant - Watt Community College',
-              value: 'columbine',
-            },
-            {
-              label: 'Rust Belt - Costa Vino Border Reserve',
-              value: 'mexico',
-            },
-            {
-              label: 'Sins of the Father - Clemente Hotel',
-              value: 'hotel',
-            },
-            {
-              label: 'Neon Tomb - Neon Nightclub',
-              value: 'ballad',
-            },
-            {
-              label: `Buy Cheap, Buy Twice - Caesar's Car Dealership`,
-              value: 'dealership',
-            },
-            {
-              label: 'Carriers of the Vine - Cherryesa Farm',
-              value: 'feminist-cult',
-            },
-            {
-              label: 'Relapse - Coastal Grove Medical Center',
-              value: 'hospital',
-            },
-            {
-              label: 'Hide and Seek - Port Hokan: Peso 1',
-              value: 'port',
-            },
-          ],
+          options: [...maps],
         }),
       ],
     });
 
     const mapSelectMessage = await interaction.reply({
-      content: 'Informe o mapa da operação: ',
+      content: 'Preencha as informações do relatório: ',
       components: [mapSelectMenu],
       ephemeral: true,
       fetchReply: true,
@@ -206,7 +134,6 @@ export class RelatorioCommand implements CommandInterface {
           info.map = collectorInteraction.values[0];
 
           await collectorInteraction.update({
-            content: `Mapa selecionado com sucesso!`,
             components: [modeSelectMenu],
           });
           break;
@@ -215,7 +142,6 @@ export class RelatorioCommand implements CommandInterface {
           info.mode = collectorInteraction.values[0];
 
           await collectorInteraction.update({
-            content: `Modo selecionado com sucesso!`,
             components: [commandSelectMenu],
           });
           break;
@@ -233,7 +159,6 @@ export class RelatorioCommand implements CommandInterface {
             });
 
             await collectorInteraction.editReply({
-              content: `Comando informado com sucesso!`,
               components: [operatorsSelectMenu],
             });
           }
@@ -253,7 +178,7 @@ export class RelatorioCommand implements CommandInterface {
 
             const modal = new ModalBuilder({
               custom_id: 'report-modal',
-              title: `Relatório ${info.map} - ${new Date().toLocaleDateString('pt-BR')}`,
+              title: `${getMapName(info.map)} - ${new Date().toLocaleDateString('pt-BR')}`,
               components: [
                 new ActionRowBuilder<TextInputBuilder>({
                   components: [
