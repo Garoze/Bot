@@ -1,5 +1,8 @@
 import { ClientEvents, Events } from 'discord.js';
 
+// export type EventType<Key extends void | keyof ClientEvents> =
+//   Key extends keyof ClientEvents ? ClientEvents[Key] : never;
+
 export type EventTypes<T extends `${Events}`> = T extends keyof ClientEvents
   ? ClientEvents[T]
   : never;
