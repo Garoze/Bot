@@ -9,7 +9,10 @@ import { CommandDecorator } from '../CommandDecorator';
 import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
+  EmbedBuilder,
   RoleSelectMenuBuilder,
+  TextChannel,
+  time,
 } from 'discord.js';
 
 @CommandDecorator
@@ -94,6 +97,39 @@ export class RoleCommand implements CommandInterface {
               await interaction.editReply({
                 content: 'Curso adicionado com sucesso!',
                 components: [],
+              });
+
+              const role = roleInteraction.guild?.roles.cache.find(
+                (r) => r.id === roleInteraction.values[0],
+              );
+
+              const logChannel = interaction.guild?.channels.cache.get(
+                '1218969631264473149',
+              ) as TextChannel;
+
+              const logEmbed = new EmbedBuilder({
+                color: 0xff00ff,
+                author: {
+                  name: 'Aplicação de curso promocional',
+                },
+                title: `${role?.name} - ${time(new Date(), 'f')}`,
+                fields: [
+                  {
+                    name: 'Instrutor: ',
+                    value: `${interaction.user.displayName}`,
+                  },
+                  {
+                    name: 'Oficial: ',
+                    value: `${user.displayName}`,
+                  },
+                ],
+                footer: {
+                  text: `Curso aplicado por: ${interaction.user.displayName}`,
+                },
+              });
+
+              logChannel.send({
+                embeds: [logEmbed],
               });
             }
           }
