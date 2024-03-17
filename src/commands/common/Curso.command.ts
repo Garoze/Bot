@@ -87,7 +87,7 @@ export class RoleCommand implements CommandInterface {
             }
 
             if (user?.roles.cache.has(roleInteraction.values[0])) {
-              await roleInteraction.editReply({
+              await roleInteraction.update({
                 content: 'O usuário informado já possui este curso',
                 components: [],
               });
