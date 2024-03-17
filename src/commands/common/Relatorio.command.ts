@@ -43,6 +43,7 @@ export class RelatorioCommand implements CommandInterface {
         required: true,
       },
     ],
+    dmPermission: false,
   };
 
   async execute({ interaction, options }: CommandProps) {
@@ -90,12 +91,16 @@ export class RelatorioCommand implements CommandInterface {
           max_values: 1,
           options: [
             {
-              label: 'Rádio',
-              value: 'radio',
+              label: 'Tático',
+              value: 'tatico',
             },
             {
               label: 'Arcade',
               value: 'arcade',
+            },
+            {
+              label: 'Milsim',
+              value: 'milsim',
             },
           ],
         }),

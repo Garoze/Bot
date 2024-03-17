@@ -7,7 +7,6 @@ export class Ping implements CommandInterface {
   props = {
     name: 'ping',
     description: 'Pong!',
-    options: [],
   };
 
   execute({ interaction }: CommandProps) {
