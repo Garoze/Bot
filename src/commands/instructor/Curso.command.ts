@@ -9,9 +9,13 @@ import { CommandDecorator } from '../CommandDecorator';
 import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
+  EmbedBuilder,
   StringSelectMenuBuilder,
+  TextChannel,
 } from 'discord.js';
-import { courses } from 'src/utils/coursesUtils';
+import { courses, getCourseName } from 'src/utils/coursesUtils';
+import { log } from 'console';
+import { colors } from 'src/utils/colors';
 
 const moderatorID = '1089621584567877762';
 
@@ -87,6 +91,8 @@ export class RoleCommand implements CommandInterface {
               return;
             }
 
+            const appliedCourses: string[] = [''];
+
             courseInteraction.values.forEach(async (course) => {
               if (user?.roles.cache.has(course)) {
                 await courseInteraction.update({
@@ -95,6 +101,7 @@ export class RoleCommand implements CommandInterface {
                 });
               } else {
                 user.roles.add(course);
+                appliedCourses.push(getCourseName(course));
               }
             });
 
@@ -102,6 +109,25 @@ export class RoleCommand implements CommandInterface {
               content: 'Cursos adicionado com sucesso!',
               components: [],
             });
+
+            const logChannel = interaction.guild?.channels.cache.get(
+              '1219790833700573224',
+            ) as TextChannel;
+
+            const embed = new EmbedBuilder({
+              color: colors.RED,
+              title: 'Aplicação de cursos:',
+              fields: [
+                { name: 'Instrutor:', value: `${interaction.user.toString()}` },
+                { name: 'Operador:', value: `${user.toString()}` },
+                { name: 'Cursos', value: `${appliedCourses.join('\n')}` },
+              ],
+              footer: {
+                text: `Comando enviado por: ${interaction.user.displayName} - ${new Date().toLocaleDateString('pt-BR')}`,
+              },
+            });
+
+            logChannel.send({ embeds: [embed] });
           }
           break;
       }
