@@ -14,10 +14,9 @@ import {
   TextChannel,
 } from 'discord.js';
 import { courses, getCourseName } from 'src/utils/coursesUtils';
-import { log } from 'console';
 import { colors } from 'src/utils/colors';
 
-const moderatorID = '1089621584567877762';
+// const moderatorID = '1089621584567877762';
 
 @CommandDecorator
 export class RoleCommand implements CommandInterface {
@@ -42,7 +41,7 @@ export class RoleCommand implements CommandInterface {
 
     await interaction.deferReply({ ephemeral: true });
 
-    if (!mod?.roles.cache.has(moderatorID)) {
+    if (!mod?.roles.cache.has(process.env.MOD_ID)) {
       await interaction.editReply({
         content: 'Você não tem permissão para enviar esse comando!',
       });
