@@ -129,6 +129,8 @@ export class TrainingCommand implements CommandInterface {
             const operator = guild?.members.cache.find((m) => m.id === userID);
             training.operator.nickname = operator?.nickname || 'N/A';
 
+            if (!operator) return;
+
             const modal = new ModalBuilder({
               custom_id: 'training-modal',
               title: 'Formação - Curso Básico',
@@ -140,7 +142,7 @@ export class TrainingCommand implements CommandInterface {
                       label: 'Operador: ',
                       placeholder: 'Informe o operador: ',
                       style: TextInputStyle.Short,
-                      value: training.operator.nickname,
+                      value: operator.nickname || operator.displayName,
                       required: true,
                     }),
                   ],
@@ -243,10 +245,16 @@ export class TrainingCommand implements CommandInterface {
               timestamp: new Date(),
             });
 
+            // Remove tag de recruta
+            operator.roles.remove('1218593801590013952');
             // Cadete
             operator?.roles.add('1089622842905202738');
             // Curso básico
             operator?.roles.add('1113630099200295052');
+
+            operator.setNickname(
+              `[  ⟩  ] ${operator.nickname || operator.displayName}`,
+            );
 
             trainingChannel.send({ embeds: [embed] });
 
