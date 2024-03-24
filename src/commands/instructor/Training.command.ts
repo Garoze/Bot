@@ -77,6 +77,7 @@ export class TrainingCommand implements CommandInterface {
     if (!instructor) {
       await interaction.reply({
         content: 'Você não tem permissão para enviar esse comando!',
+        ephemeral: true,
       });
 
       return;
