@@ -22,18 +22,21 @@ import { EventInterface } from 'src/@types/event';
 export class BotClient extends Client {
   public static singleton?: BotClient;
 
-  public commandsFolders: string[] = ['common', 'admin', 'moderator'];
+  public commandsFolders: string[] = [
+    'common',
+    'admin',
+    'moderator',
+    'instructor',
+  ];
   public applicationCommandList: ApplicationCommandDataResolvable[] = [];
 
   public commandCollection: Collection<string, CommandInterface> =
     new Collection();
 
-  // public buttonsCollection = new Collection();
   public selectsCollection = new Collection<
     string,
     (interaction: StringSelectMenuInteraction) => any
   >();
-  // public modalsCollection = new Collection();
 
   public modalsCollection = new Collection<
     string,
