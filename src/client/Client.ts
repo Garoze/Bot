@@ -146,9 +146,34 @@ export class BotClient extends Client {
   }
 
   public async start() {
+    // this.globalReset();
     await this.loadCommands();
     await this.loadEvents();
 
     this.login(process.env.BOT_TOKEN);
+  }
+
+  public async globalReset() {
+    const rest = new REST().setToken(process.env.BOT_TOKEN);
+
+    rest
+      .put(Routes.applicationCommands(process.env.CLIENT_ID), { body: [] })
+      .then(() => console.log('Successfully deleted all application commands.'))
+      .catch(console.error);
+  }
+
+  public async guildReset() {
+    const rest = new REST().setToken(process.env.BOT_TOKEN);
+
+    rest
+      .put(
+        Routes.applicationGuildCommands(
+          process.env.CLIENT_ID,
+          process.env.GUILD_ID,
+        ),
+        { body: [] },
+      )
+      .then(() => console.log('Successfully deleted all guild commands.'))
+      .catch(console.error);
   }
 }
