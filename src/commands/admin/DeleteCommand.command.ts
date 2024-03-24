@@ -7,7 +7,6 @@ import { CommandDecorator } from '../CommandDecorator';
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
-  PermissionsBitField,
   REST,
   Routes,
 } from 'discord.js';
@@ -31,27 +30,25 @@ export class DeleteCommand implements CommandInterface {
   async execute({ interaction }: CommandProps) {
     if (!interaction.isChatInputCommand()) return;
 
-    await interaction.deferReply({ ephemeral: true });
     const commandID = interaction.options.get('command-id', true).value;
 
-    if (
-      !interaction.memberPermissions?.has(
-        PermissionsBitField.Flags.Administrator,
-      )
-    ) {
+    await interaction.deferReply({ ephemeral: true });
+
+    if (interaction.user.id !== '348557198676459520') {
       return interaction.reply({ content: 'You can not use this command.' });
     }
 
     if (!commandID) {
       return interaction.reply({ content: 'Could not find the command id.' });
     }
+
     const rest = new REST().setToken(process.env.BOT_TOKEN);
 
     rest
       .delete(
         Routes.applicationGuildCommand(
-          process.env.CLIENT_ID as string,
-          process.env.GUILD_ID as string,
+          process.env.CLIENT_ID,
+          process.env.GUILD_ID,
           `${commandID}`,
         ),
       )

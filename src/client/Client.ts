@@ -22,7 +22,7 @@ import { EventInterface } from 'src/@types/event';
 export class BotClient extends Client {
   public static singleton?: BotClient;
 
-  public commandsFolders: string[] = ['common', 'admin', 'instructor'];
+  public commandsFolders: string[] = ['common', 'admin', 'moderator'];
   public applicationCommandList: ApplicationCommandDataResolvable[] = [];
 
   public commandCollection: Collection<string, CommandInterface> =
