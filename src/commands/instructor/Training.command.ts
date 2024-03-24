@@ -8,7 +8,6 @@ import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
   EmbedBuilder,
-  GuildMember,
   ModalBuilder,
   TextChannel,
   TextInputBuilder,
@@ -20,7 +19,6 @@ import { colors } from 'src/utils/colors';
 
 type Operator = {
   id: string;
-  object?: GuildMember;
   nickname: string;
 };
 
@@ -72,6 +70,7 @@ export class TrainingCommand implements CommandInterface {
     instructorIDs.forEach(async (id) => {
       if (hasPermission(member, id)) {
         instructor = true;
+        return;
       }
     });
 
@@ -122,8 +121,7 @@ export class TrainingCommand implements CommandInterface {
               if (assistant) {
                 training.assistants.push({
                   id,
-                  object: assistant,
-                  nickname: assistant.nickname!,
+                  nickname: assistant.nickname || 'N/A',
                 });
               }
             });
@@ -245,8 +243,10 @@ export class TrainingCommand implements CommandInterface {
               timestamp: new Date(),
             });
 
-            operator?.roles.add('1089622842905202738'); // Cadete
-            operator?.roles.add('1113630099200295052'); // Curso básico
+            // Cadete
+            operator?.roles.add('1089622842905202738');
+            // Curso básico
+            operator?.roles.add('1113630099200295052');
 
             trainingChannel.send({ embeds: [embed] });
 
