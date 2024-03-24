@@ -78,6 +78,8 @@ export class TrainingCommand implements CommandInterface {
       await interaction.reply({
         content: 'Você não tem permissão para enviar esse comando!',
       });
+
+      return;
     }
 
     const userID = options.getUser('promote-user')?.id;
@@ -246,13 +248,13 @@ export class TrainingCommand implements CommandInterface {
             });
 
             // Remove tag de recruta
-            operator.roles.remove('1218593801590013952');
+            await operator.roles.remove('1218593801590013952');
             // Cadete
-            operator?.roles.add('1089622842905202738');
+            await operator.roles.add('1089622842905202738');
             // Curso básico
-            operator?.roles.add('1113630099200295052');
+            await operator.roles.add('1113630099200295052');
 
-            operator.setNickname(
+            await operator.setNickname(
               `[  ⟩  ] ${operator.nickname || operator.displayName}`,
             );
 
