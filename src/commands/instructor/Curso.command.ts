@@ -16,8 +16,6 @@ import {
 import { courses, getCourseName } from 'src/utils/coursesUtils';
 import { colors } from 'src/utils/colors';
 
-// const moderatorID = '1089621584567877762';
-
 @CommandDecorator
 export class RoleCommand implements CommandInterface {
   props: CommandType = {
