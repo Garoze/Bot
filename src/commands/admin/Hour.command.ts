@@ -5,6 +5,7 @@ import {
 } from 'src/@types/command';
 import { CommandDecorator } from '../CommandDecorator';
 import { EmbedBuilder, PermissionsBitField, TextChannel } from 'discord.js';
+import { getMemberNickname } from 'src/utils/nickname';
 
 @CommandDecorator
 export class HourCommand implements CommandInterface {
@@ -37,7 +38,7 @@ export class HourCommand implements CommandInterface {
       🌃 21:00 as 23:00\n
       🌑 01:00+\n`,
       footer: {
-        text: `Comando enviado por: ${interaction.user.displayName} - ${new Date().toLocaleDateString('pt-BR')}`,
+        text: `Comando enviado por: ${getMemberNickname(interaction)} - ${new Date().toLocaleDateString('pt-BR')}`,
       },
     });
 

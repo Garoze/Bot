@@ -16,6 +16,7 @@ import {
 } from 'discord.js';
 import { hasPermission } from 'src/utils/perms';
 import { colors } from 'src/utils/colors';
+import { getMemberNickname } from 'src/utils/nickname';
 
 type Operator = {
   id: string;
@@ -243,7 +244,7 @@ export class TrainingCommand implements CommandInterface {
                 { name: 'Observações: ', value: training.comments },
               ],
               footer: {
-                text: `Ass. ${member.nickname || 'N/A'}`,
+                text: `Ass. ${getMemberNickname(interaction)}`,
               },
               timestamp: new Date(),
             });

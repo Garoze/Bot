@@ -15,6 +15,7 @@ import {
 } from 'discord.js';
 import { courses, getCourseName } from 'src/utils/coursesUtils';
 import { colors } from 'src/utils/colors';
+import { getMemberNickname } from 'src/utils/nickname';
 
 @CommandDecorator
 export class RoleCommand implements CommandInterface {
@@ -120,7 +121,7 @@ export class RoleCommand implements CommandInterface {
                 { name: 'Cursos', value: `${appliedCourses.join('\n')}` },
               ],
               footer: {
-                text: `Comando enviado por: ${interaction.user.displayName} - ${new Date().toLocaleDateString('pt-BR')}`,
+                text: `Comando enviado por: ${getMemberNickname(interaction)} - ${new Date().toLocaleDateString('pt-BR')}`,
               },
             });
 

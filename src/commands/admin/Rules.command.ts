@@ -6,6 +6,7 @@ import {
 import { CommandDecorator } from '../CommandDecorator';
 import { EmbedBuilder, PermissionsBitField, TextChannel } from 'discord.js';
 import { colors } from 'src/utils/colors';
+import { getMemberNickname } from 'src/utils/nickname';
 
 @CommandDecorator
 export class RuleCommand implements CommandInterface {
@@ -59,7 +60,7 @@ export class RuleCommand implements CommandInterface {
         },
       ],
       footer: {
-        text: `Comando enviado por: ${interaction.user.displayName} - ${new Date().toLocaleDateString('pt-BR')}`,
+        text: `Comando enviado por: ${getMemberNickname(interaction)} - ${new Date().toLocaleDateString('pt-BR')}`,
       },
     });
 
