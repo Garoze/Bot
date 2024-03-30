@@ -257,7 +257,7 @@ export class TrainingCommand implements CommandInterface {
             await operator.roles.add('1113630099200295052');
 
             await operator.setNickname(
-              `[  ⟩  ] ${operator.nickname || operator.displayName}`,
+              `[  ⟩  ] ${operator.nickname?.split(']')[1] || operator.displayName}`,
             );
 
             trainingChannel.send({ embeds: [embed] });

@@ -47,3 +47,5 @@ export class ManifestCommand implements CommandInterface {
     await infoChannel.send({ embeds: [embed] });
   }
 }
+
+// /^Ready or Not$/i
