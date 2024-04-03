@@ -16,7 +16,7 @@ import {
 } from 'discord.js';
 import { hasPermission } from 'src/utils/perms';
 import { colors } from 'src/utils/colors';
-import { getMemberNickname } from 'src/utils/nickname';
+import { getMemberNickname, splitNickNameRank } from 'src/utils/nickname';
 
 type Operator = {
   id: string;
@@ -244,7 +244,7 @@ export class TrainingCommand implements CommandInterface {
                 { name: 'Observações: ', value: training.comments },
               ],
               footer: {
-                text: `Ass. ${getMemberNickname(interaction)}`,
+                text: `Comando enviado por: ${getMemberNickname(interaction)} - ${new Date().toLocaleDateString('pt-BR')}`,
               },
               timestamp: new Date(),
             });
@@ -257,7 +257,7 @@ export class TrainingCommand implements CommandInterface {
             await operator.roles.add('1113630099200295052');
 
             await operator.setNickname(
-              `[  ⟩  ] ${operator.nickname?.split(']')[1] || operator.displayName}`,
+              `[  ⟩  ] ${splitNickNameRank(operator)}`,
             );
 
             trainingChannel.send({ embeds: [embed] });
