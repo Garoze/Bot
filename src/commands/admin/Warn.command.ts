@@ -25,8 +25,6 @@ export class WarnCommand implements CommandInterface {
   };
 
   async execute({ interaction }: CommandProps) {
-    // await interaction.deferReply({ ephemeral: true, fetchReply: true });
-
     if (
       !interaction.memberPermissions?.has(
         PermissionsBitField.Flags.Administrator,
@@ -83,16 +81,10 @@ export class WarnCommand implements CommandInterface {
     const title = fields.getTextInputValue('warn-modal-title');
     const text = fields.getTextInputValue('warn-modal-text');
 
-    modalInteraction
-      .reply({
-        content: 'Seu formulario foi enviado com sucesso!',
-        ephemeral: true,
-      })
-      .then((i) =>
-        setTimeout(() => {
-          i.delete();
-        }, 5000),
-      );
+    const message = await modalInteraction.reply({
+      content: 'Seu formulario foi enviado com sucesso!',
+      ephemeral: true,
+    });
 
     const currentChannel = interaction.guild?.channels.cache.get(
       interaction.channelId,
@@ -111,6 +103,7 @@ export class WarnCommand implements CommandInterface {
       timestamp: new Date(),
     });
 
-    currentChannel.send({ embeds: [embed] });
+    await currentChannel.send({ embeds: [embed] });
+    await message.delete();
   }
 }

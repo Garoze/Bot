@@ -68,7 +68,7 @@ export class RoleCommand implements CommandInterface {
 
     const roleSelectCollector =
       roleSelectMessage.createMessageComponentCollector({
-        time: 30000,
+        time: 420000,
       });
 
     roleSelectCollector.on('collect', async (courseInteraction) => {
@@ -109,7 +109,7 @@ export class RoleCommand implements CommandInterface {
             });
 
             const logChannel = interaction.guild?.channels.cache.get(
-              '1219790833700573224',
+              '1133403751416332340',
             ) as TextChannel;
 
             const embed = new EmbedBuilder({

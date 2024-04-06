@@ -4,7 +4,6 @@ import {
   CommandType,
 } from 'src/@types/command';
 import { CommandDecorator } from '../CommandDecorator';
-import { hasPermission } from 'src/utils/perms';
 import {
   ActionRowBuilder,
   EmbedBuilder,
@@ -28,8 +27,13 @@ export class SchedulingCommand implements CommandInterface {
       (m) => m.id === interaction.user.id,
     );
 
-    if (!member) return;
-    if (!hasPermission(member, '1217143115861856387')) return;
+    if (!member) {
+      interaction.reply({
+        content:
+          'O membro citado não foi encontrado, informe o <@348557198676459520>.',
+        ephemeral: true,
+      });
+    }
 
     const daySelectMenu = new ActionRowBuilder<StringSelectMenuBuilder>({
       components: [
