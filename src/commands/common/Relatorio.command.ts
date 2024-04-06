@@ -7,8 +7,10 @@ import {
 import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
+  EmbedBuilder,
   ModalBuilder,
   StringSelectMenuBuilder,
+  TextChannel,
   TextInputBuilder,
   TextInputStyle,
   UserSelectMenuBuilder,
@@ -16,6 +18,9 @@ import {
 
 import { CommandDecorator } from '../CommandDecorator';
 import { getMapName, maps } from 'src/utils/mapsUtils';
+import { getMemberNickname, splitNickNameRank } from 'src/utils/nickname';
+import { colors } from 'src/utils/colors';
+import { getCurrentTime } from 'src/utils/hours';
 
 type Operator = {
   id: string;
@@ -25,7 +30,7 @@ type Operator = {
 type Report = {
   map: string;
   mode: string;
-  command: string;
+  command?: Operator;
   operators: Operator[];
   comments: string;
 };
@@ -34,11 +39,12 @@ type Report = {
 export class RelatorioCommand implements CommandInterface {
   props: CommandType = {
     name: 'relatorio',
-    description: 'Envia o relátorio da missão ao comando da Elite BR',
+    description:
+      'Envia o relátorio da missão ao comando do Ready or Not Brasil',
     options: [
       {
         name: 'report-image',
-        description: 'Imagem da nota final da missão.',
+        description: 'Imagem da relatório final da missão.',
         type: ApplicationCommandOptionType.Attachment,
         required: true,
       },
@@ -50,12 +56,15 @@ export class RelatorioCommand implements CommandInterface {
     const info: Report = {
       map: '',
       mode: '',
-      command: '',
       operators: [],
-      comments: 'N/A',
+      comments: '',
     };
 
-    const _reportImage = options.get('report-image');
+    // const reportImage = options.get('report-image');
+
+    const reportImage = options.getAttachment('report-image');
+
+    if (!reportImage) return;
 
     const mapSelectMenu = new ActionRowBuilder<StringSelectMenuBuilder>({
       components: [
@@ -78,7 +87,7 @@ export class RelatorioCommand implements CommandInterface {
 
     const mapSelectCollector = mapSelectMessage.createMessageComponentCollector(
       {
-        time: 30000,
+        time: 420000,
       },
     );
 
@@ -95,25 +104,10 @@ export class RelatorioCommand implements CommandInterface {
               value: 'tatico',
             },
             {
-              label: 'Arcade',
-              value: 'arcade',
-            },
-            {
               label: 'Milsim',
               value: 'milsim',
             },
           ],
-        }),
-      ],
-    });
-
-    const commandSelectMenu = new ActionRowBuilder<UserSelectMenuBuilder>({
-      components: [
-        new UserSelectMenuBuilder({
-          custom_id: 'command-select',
-          placeholder: 'Informe o comando da operação: ',
-          min_values: 1,
-          maxValues: 1,
         }),
       ],
     });
@@ -147,37 +141,34 @@ export class RelatorioCommand implements CommandInterface {
           info.mode = collectorInteraction.values[0];
 
           await collectorInteraction.update({
-            components: [commandSelectMenu],
+            components: [operatorsSelectMenu],
           });
-          break;
-
-        case 'command-select':
-          {
-            const command = guild?.members.cache.find(
-              (member) => member.id === collectorInteraction.values[0],
-            );
-
-            if (command) info.command = command.displayName;
-
-            await collectorInteraction.update({
-              components: [],
-            });
-
-            await collectorInteraction.editReply({
-              components: [operatorsSelectMenu],
-            });
-          }
           break;
 
         case 'operators-select':
           {
+            const command = guild?.members.cache.find(
+              (member) => member.id === interaction.user.id,
+            );
+
+            if (!command) return;
+            info.command = {
+              id: command.id,
+              displayName:
+                splitNickNameRank(command)?.trim() || command.displayName,
+            };
+
             collectorInteraction.values.forEach((id) => {
               const operator = guild?.members.cache.find(
                 (member) => member.id === id,
               );
 
               if (operator) {
-                info.operators.push({ id, displayName: operator.displayName });
+                info.operators.push({
+                  id,
+                  displayName:
+                    splitNickNameRank(operator)?.trim() || operator.displayName,
+                });
               }
             });
 
@@ -192,7 +183,7 @@ export class RelatorioCommand implements CommandInterface {
                       label: 'Modo da operação: ',
                       placeholder: 'Informe o modo da operação: ',
                       style: TextInputStyle.Short,
-                      value: info.mode,
+                      value: info.mode == 'tatico' ? 'Tático' : 'Milsim',
                       required: true,
                     }),
                   ],
@@ -204,7 +195,7 @@ export class RelatorioCommand implements CommandInterface {
                       label: 'Comando da operação: ',
                       placeholder: 'Informe o comando da operação: ',
                       style: TextInputStyle.Short,
-                      value: info.command,
+                      value: info.command.displayName,
                       required: true,
                     }),
                   ],
@@ -229,7 +220,7 @@ export class RelatorioCommand implements CommandInterface {
                       custom_id: 'modal-comments-input',
                       label: 'Observações: ',
                       style: TextInputStyle.Paragraph,
-                      value: info.comments,
+                      value: '',
                       required: false,
                     }),
                   ],
@@ -238,6 +229,68 @@ export class RelatorioCommand implements CommandInterface {
             });
 
             await collectorInteraction.showModal(modal);
+
+            const modalInteraction = await interaction
+              .awaitModalSubmit({
+                time: 420000,
+                filter: (i) => i.user.id === interaction.user.id,
+              })
+              .catch((err) => {
+                console.log(err);
+                return null;
+              });
+
+            if (!modalInteraction) return;
+
+            const { fields } = modalInteraction;
+
+            const comments =
+              fields.getTextInputValue('modal-comments-input') || 'N/A';
+
+            const modalReply = await modalInteraction.reply({
+              content: 'Seu formulario foi enviado com sucesso!',
+              ephemeral: true,
+            });
+
+            await collectorInteraction.deleteReply();
+            setTimeout(async () => {
+              await modalReply.delete();
+            }, 5000);
+
+            const reportChannel = interaction.guild?.channels.cache.get(
+              '1204127322027069481',
+            ) as TextChannel;
+
+            if (!reportChannel) return;
+
+            const embed = new EmbedBuilder()
+              .setColor(colors.BLUE)
+              .setTitle(`Relatório da Missão`)
+              .setDescription(
+                `**${getMapName(info.map)}** - ${new Date().toLocaleDateString('pt-BR')} às ${getCurrentTime()}`,
+              )
+              .addFields(
+                { name: 'Comando', value: `<@${info.command.id}>` },
+                { name: ' ', value: ' ' },
+                {
+                  name: 'Operadores',
+                  value: info.operators
+                    .map((operator) => `<@${operator.id}>`)
+                    .join('\n'),
+                },
+                { name: ' ', value: ' ' },
+                {
+                  name: 'Resumo/Observações',
+                  value: comments,
+                },
+              )
+              .setImage(reportImage.url as string)
+              .setFooter({
+                text: `Comando enviado por: ${getMemberNickname(interaction)} - ${new Date().toLocaleDateString('pt-BR')}}`,
+              })
+              .setTimestamp();
+
+            await reportChannel.send({ embeds: [embed] });
 
             mapSelectCollector.stop();
           }
