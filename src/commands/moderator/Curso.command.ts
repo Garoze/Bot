@@ -13,7 +13,7 @@ import {
   StringSelectMenuBuilder,
   TextChannel,
 } from 'discord.js';
-import { courses, getCourseName } from 'src/utils/coursesUtils';
+import { courses } from 'src/utils/coursesUtils';
 import { colors } from 'src/utils/colors';
 import { getMemberNickname } from 'src/utils/nickname';
 
@@ -89,18 +89,11 @@ export class RoleCommand implements CommandInterface {
               return;
             }
 
-            const appliedCourses: string[] = [''];
+            const appliedCourses: string[] = [];
 
             courseInteraction.values.forEach(async (course) => {
-              if (user?.roles.cache.has(course)) {
-                await courseInteraction.update({
-                  content: `O usuário informado já possui o curso [${course}]`,
-                  components: [],
-                });
-              } else {
-                user.roles.add(course);
-                appliedCourses.push(getCourseName(course));
-              }
+              user.roles.add(course);
+              appliedCourses.push(course);
             });
 
             await interaction.editReply({
@@ -118,7 +111,12 @@ export class RoleCommand implements CommandInterface {
               fields: [
                 { name: 'Instrutor:', value: `${interaction.user.toString()}` },
                 { name: 'Operador:', value: `${user.toString()}` },
-                { name: 'Cursos', value: `${appliedCourses.join('\n')}` },
+                {
+                  name: 'Cursos',
+                  value: appliedCourses
+                    .map((course) => `<@&${course}>`)
+                    .join('\n'),
+                },
               ],
               footer: {
                 text: `Comando enviado por: ${getMemberNickname(interaction)} - ${new Date().toLocaleDateString('pt-BR')}`,
